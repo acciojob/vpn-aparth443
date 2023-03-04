@@ -24,10 +24,17 @@ public class User {
     @OneToOne(mappedBy = "user",cascade = CascadeType.ALL)
     private Country originalCountry;
 
-    @ManyToMany(mappedBy = "users",cascade = CascadeType.ALL)
+    @ManyToMany
+    @JoinColumn
     private List<ServiceProvider> serviceProviderList = new ArrayList<>();
 
     public User() {
+    }
+
+    public User(String username, String password, Country originalCountry) {
+        this.username = username;
+        this.password = password;
+        this.originalCountry = originalCountry;
     }
 
     public int getId() {

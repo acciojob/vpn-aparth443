@@ -25,56 +25,54 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User register(String username, String password, String countryName) throws Exception{
-          User user = new User();
-          user.setUsername(username);
-          user.setPassword(password);
-          countryName.toUpperCase();
+          if(!(countryName.equalsIgnoreCase("ind") || countryName.equalsIgnoreCase("aus") || countryName.equalsIgnoreCase("chi") || countryName.equalsIgnoreCase("usa") || countryName.equalsIgnoreCase("jpn")) ){
+              throw new Exception("Country not found");
+          }else{
+              User user = new User();
+              user.setPassword(password);
+              user.setUsername(username);
 
-        if(!(countryName.equals("IND") || countryName.equals("USA") || countryName.equals("CHI") || countryName.equals("JPN") || countryName.equals("AUS"))){
-            throw new Exception("Country not found");
-        }
-        Country country = new Country();
-        if(countryName.equals("IND")){
-            country.setCountryName(CountryName.IND);
-            country.setCode(CountryName.IND.toCode());
-        }
-        if(countryName.equals("USA")){
-            country.setCountryName(CountryName.USA);
-            country.setCode(CountryName.USA.toCode());
-        }
-        if(countryName.equals("JPN")){
-            country.setCountryName(CountryName.JPN);
-            country.setCode(CountryName.JPN.toCode());
-        }
-        if(countryName.equals("AUS")){
-            country.setCountryName(CountryName.AUS);
-            country.setCode(CountryName.AUS.toCode());
-        }
-        if(countryName.equals("CHI")){
-            country.setCountryName(CountryName.CHI);
-            country.setCode(CountryName.CHI.toCode());
-        }
-        country.setUser(user);
-        user.setOriginalCountry(country);
-        String ip = country.getCode() + "." + user.getId();
-        user.setOriginalIp(ip);
-        user.setMaskedIp(null);
-        user.setConnected(false);
-        userRepository3.save(user);
-        return user;
+              Country country = new Country();
+
+              if (countryName.equalsIgnoreCase("ind")) {
+                  country.setCountryName(CountryName.IND);
+                  country.setCode(CountryName.IND.toCode());
+              }
+              if (countryName.equalsIgnoreCase("usa")) {
+                  country.setCountryName(CountryName.USA);
+                  country.setCode(CountryName.USA.toCode());
+              }
+              if (countryName.equalsIgnoreCase("aus")) {
+                  country.setCountryName(CountryName.AUS);
+                  country.setCode(CountryName.AUS.toCode());
+              }
+              if (countryName.equalsIgnoreCase("jpn")) {
+                  country.setCountryName(CountryName.JPN);
+                  country.setCode(CountryName.JPN.toCode());
+              }
+              if (countryName.equalsIgnoreCase("chi")) {
+                  country.setCountryName(CountryName.CHI);
+                  country.setCode(CountryName.CHI.toCode());
+              }
+
+              country.setUser(user);
+              user.setOriginalCountry(country);
+              user.setConnected(false);
+
+              String IP = country.getCode() +"."+ userRepository3.save(user).getId();
+              user.setOriginalIp(IP);
+              userRepository3.save(user);
+              return user;
+          }
     }
 
     @Override
     public User subscribe(Integer userId, Integer serviceProviderId) {
         User user = userRepository3.findById(userId).get();
         ServiceProvider serviceProvider = serviceProviderRepository3.findById(serviceProviderId).get();
-        List<User> userList = serviceProvider.getUsers();
-        userList.add(user);
-        serviceProvider.setUsers(userList);
-        List<ServiceProvider> serviceProviderList = user.getServiceProviderList();
-        serviceProviderList.add(serviceProvider);
-        user.setServiceProviderList(serviceProviderList);
-        userRepository3.save(user);
+        user.getServiceProviderList().add(serviceProvider);
+        serviceProvider.getUsers().add(user);
+        serviceProviderRepository3.save(serviceProvider);
         return user;
     }
 

@@ -21,63 +21,50 @@ public class ConnectionServiceImpl implements ConnectionService {
 
     @Override
     public User connect(int userId, String countryName) throws Exception{
-
         User user = userRepository2.findById(userId).get();
-        countryName.toUpperCase();
-        if(user.getConnected()){
+        if(user.getMaskedIp() != null){
             throw new Exception("Already connected");
-        }else if(countryName.equals(user.getOriginalCountry().getCountryName().toString())){
+        }else if(countryName.equalsIgnoreCase(user.getOriginalCountry().getCountryName().toString())){
             return user;
         }else{
-            List<ServiceProvider> serviceProviderList = user.getServiceProviderList();
             if(user.getServiceProviderList() == null){
                 throw new Exception("Unable to connect");
             }
-            boolean availability = false;
-            for(ServiceProvider serviceProvider: serviceProviderList){
-                List<Country> countryList = serviceProvider.getCountryList();
-                for(Country country: countryList){
-                    if(countryName.equals(country.getCountryName().toString())){
-                        availability = true;
-                        break;
+            List<ServiceProvider> serviceProviderList = user.getServiceProviderList();
+            int mini = Integer.MAX_VALUE;
+            ServiceProvider serviceProvider = null;
+            Country country = null;
+
+            for(ServiceProvider sp : serviceProviderList){
+                List<Country> countryList = sp.getCountryList();
+                for(Country cntry : countryList){
+                    if(countryName.equalsIgnoreCase(cntry.getCountryName().toString()) && mini>sp.getId()){
+                        serviceProvider = sp;
+                        country = cntry;
+                        mini = sp.getId();
                     }
                 }
-                if(availability){
-                    break;
-                }
             }
-            if(!availability){
+            if(serviceProvider != null){
+                Connection connection = new Connection();
+                connection.setUser(user);
+                connection.setServiceProvider(serviceProvider);
+
+                String countryCode = country.getCode();
+                int id = serviceProvider.getId();
+                String maskedIp = countryCode + "." + id + "." + userId;
+                user.setMaskedIp(maskedIp);
+                user.setConnected(true);
+                user.getConnectionList().add(connection);
+
+                serviceProvider.getConnectionList().add(connection);
+                userRepository2.save(user);
+                serviceProviderRepository2.save(serviceProvider);
+                return user;
+            }else{
                 throw new Exception("Unable to connect");
             }
-            int serviceProviderId =  Integer.MAX_VALUE;
-            ServiceProvider serviceProvider = null;
-            Country cntry = null;
-            for(ServiceProvider sp: serviceProviderList){
-                List<Country> countryList = sp.getCountryList();
-                for(Country country: countryList){
-                    if(countryName.equals(country.getCountryName().toString())){
-                        if(sp.getId()<serviceProviderId){
-                            serviceProviderId = sp.getId();
-                            serviceProvider = sp;
-                            cntry = country;
-                        }
-                    }
-                }
-            }
-            Connection connection = new Connection();
-            connection.setUser(user);
-            connection.setServiceProvider(serviceProvider);
-            String countryCode = cntry.getCode();
-            String maskedIp = countryCode + "." + serviceProvider.getId() + "." + userId;
-            user.setMaskedIp(maskedIp);;
-            user.setConnected(true);
-            user.getConnectionList().add(connection);
-            serviceProvider.getConnectionList().add(connection);
-            serviceProviderRepository2.save(serviceProvider);
-            userRepository2.save(user);
-            return user;
         }
-
     }
     @Override
     public User disconnect(int userId) throws Exception {
@@ -85,12 +72,11 @@ public class ConnectionServiceImpl implements ConnectionService {
         User user = userRepository2.findById(userId).get();
         if(!user.getConnected()){
             throw new Exception("Already disconnected");
-        }else{
+        }
             user.setConnected(false);
             user.setMaskedIp(null);
             userRepository2.save(user);
             return user;
-        }
     }
     @Override
     public User communicate(int senderId, int receiverId) throws Exception {

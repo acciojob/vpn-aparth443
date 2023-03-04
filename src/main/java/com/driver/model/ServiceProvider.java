@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "service_provider")
+@Table(name = "serviceProvider")
 public class ServiceProvider {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,9 +23,12 @@ public class ServiceProvider {
     @OneToMany(mappedBy = "serviceProvider",cascade = CascadeType.ALL)
     private List<Connection> connectionList = new ArrayList<>();
 
-    @ManyToMany
-    @JoinColumn
+    @ManyToMany(mappedBy = "serviceProviderList",cascade = CascadeType.ALL)
     private List<User> users = new ArrayList<>();
+
+    public ServiceProvider(String name) {
+        this.name = name;
+    }
 
     public ServiceProvider() {
     }
@@ -54,6 +57,14 @@ public class ServiceProvider {
         this.admin = admin;
     }
 
+    public List<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(List<User> users) {
+        this.users = users;
+    }
+
     public List<Country> getCountryList() {
         return countryList;
     }
@@ -68,13 +79,5 @@ public class ServiceProvider {
 
     public void setConnectionList(List<Connection> connectionList) {
         this.connectionList = connectionList;
-    }
-
-    public List<User> getUsers() {
-        return users;
-    }
-
-    public void setUsers(List<User> users) {
-        this.users = users;
     }
 }

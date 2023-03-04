@@ -25,58 +25,61 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public Admin register(String username, String password) {
-        Admin admin = new Admin(username,password);
-        admin = adminRepository1.save(admin);
+        Admin admin = new Admin();
+        admin.setUsername(username);
+        admin.setPassword(password);
+        adminRepository1.save(admin);
         return admin;
     }
 
     @Override
     public Admin addServiceProvider(int adminId, String providerName) {
         Admin admin = adminRepository1.findById(adminId).get();
-        List<ServiceProvider> serviceProviderList = admin.getServiceProviders();
         ServiceProvider serviceProvider = new ServiceProvider();
         serviceProvider.setName(providerName);
         serviceProvider.setAdmin(admin);
-        serviceProviderList.add(serviceProvider);
-        admin.setServiceProviders(serviceProviderList);
+        admin.getServiceProviders().add(serviceProvider);
         adminRepository1.save(admin);
         return admin;
     }
 
     @Override
     public ServiceProvider addCountry(int serviceProviderId, String countryName) throws Exception{
-        countryName.toUpperCase();
-        if(!(countryName.equals("IND") || countryName.equals("USA")|| countryName.equals("CHI")  || countryName.equals("JPN") || countryName.equals("AUS"))){
+        if(!(countryName.equalsIgnoreCase("ind") || countryName.equalsIgnoreCase("usa") ||
+                countryName.equalsIgnoreCase("aus")||countryName.equalsIgnoreCase("jpn")||
+                countryName.equalsIgnoreCase("chi"))){
             throw new Exception("Country not found");
         }
+        else{
+            Country country = new Country();
+            ServiceProvider serviceProvider = serviceProviderRepository1.findById(serviceProviderId).get();
 
-        ServiceProvider serviceProvider = serviceProviderRepository1.findById(serviceProviderId).get();
-        Country country = new Country();
-        if(countryName.equals("IND")){
-            country.setCountryName(CountryName.IND);
-            country.setCode(CountryName.IND.toCode());
+            if (countryName.equalsIgnoreCase("ind")){
+                country.setCountryName(CountryName.IND);
+                country.setCode(CountryName.IND.toCode());
+            }
+            if (countryName.equalsIgnoreCase("usa")){
+                country.setCountryName(CountryName.USA);
+                country.setCode(CountryName.USA.toCode());
+            }
+            if (countryName.equalsIgnoreCase("aus")){
+                country.setCountryName(CountryName.AUS);
+                country.setCode(CountryName.AUS.toCode());
+            }
+            if (countryName.equalsIgnoreCase("jpn")){
+                country.setCountryName(CountryName.JPN);
+                country.setCode(CountryName.JPN.toCode());
+            }
+            if (countryName.equalsIgnoreCase("chi")){
+                country.setCountryName(CountryName.CHI);
+                country.setCode(CountryName.CHI.toCode());
+            }
+            country.setServiceProvider(serviceProvider);
+            serviceProvider.getCountryList().add(country);
+            serviceProviderRepository1.save(serviceProvider);
+
+            return serviceProvider;
         }
-        if(countryName.equals("USA")){
-            country.setCountryName(CountryName.USA);
-            country.setCode(CountryName.USA.toCode());
-        }
-        if(countryName.equals("JPN")){
-            country.setCountryName(CountryName.JPN);
-            country.setCode(CountryName.JPN.toCode());
-        }
-        if(countryName.equals("AUS")){
-            country.setCountryName(CountryName.AUS);
-            country.setCode(CountryName.AUS.toCode());
-        }
-        if(countryName.equals("CHI")){
-            country.setCountryName(CountryName.CHI);
-            country.setCode(CountryName.CHI.toCode());
-        }
-        country.setServiceProvider(serviceProvider);
-        List<Country> countryList = serviceProvider.getCountryList();
-        countryList.add(country);
-        serviceProvider.setCountryList(countryList);
-        serviceProviderRepository1.save(serviceProvider);
-        return serviceProvider;
+
     }
 }
