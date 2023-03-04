@@ -30,27 +30,27 @@ public class UserServiceImpl implements UserService {
           user.setPassword(password);
           countryName.toUpperCase();
 
-        if(!(countryName == "IND" || countryName == "USA" || countryName == "CHI" || countryName == "JPN" || countryName == "AUS")){
+        if(!(countryName.equals("IND") || countryName.equals("USA") || countryName.equals("CHI") || countryName.equals("JPN") || countryName.equals("AUS"))){
             throw new Exception("Country not found");
         }
         Country country = new Country();
-        if(countryName == "IND"){
+        if(countryName.equals("IND")){
             country.setCountryName(CountryName.IND);
             country.setCode(CountryName.IND.toCode());
         }
-        if(countryName == "USA"){
+        if(countryName.equals("USA")){
             country.setCountryName(CountryName.USA);
             country.setCode(CountryName.USA.toCode());
         }
-        if(countryName == "JPN"){
+        if(countryName.equals("JPN")){
             country.setCountryName(CountryName.JPN);
             country.setCode(CountryName.JPN.toCode());
         }
-        if(countryName == "AUS"){
+        if(countryName.equals("AUS")){
             country.setCountryName(CountryName.AUS);
             country.setCode(CountryName.AUS.toCode());
         }
-        if(countryName == "CHI"){
+        if(countryName.equals("CHI")){
             country.setCountryName(CountryName.CHI);
             country.setCode(CountryName.CHI.toCode());
         }
