@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService {
             country.setCode(CountryName.CHI.toCode());
         }
         country.setUser(user);
-        user.setCountry(country);
+        user.setOriginalCountry(country);
         String ip = country.getCode() + "." + user.getId();
         user.setOriginalIp(ip);
         user.setMaskedIp(null);
@@ -68,9 +68,9 @@ public class UserServiceImpl implements UserService {
     public User subscribe(Integer userId, Integer serviceProviderId) {
         User user = userRepository3.findById(userId).get();
         ServiceProvider serviceProvider = serviceProviderRepository3.findById(serviceProviderId).get();
-        List<User> userList = serviceProvider.getUserList();
+        List<User> userList = serviceProvider.getUsers();
         userList.add(user);
-        serviceProvider.setUserList(userList);
+        serviceProvider.setUsers(userList);
         List<ServiceProvider> serviceProviderList = user.getServiceProviderList();
         serviceProviderList.add(serviceProvider);
         user.setServiceProviderList(serviceProviderList);
