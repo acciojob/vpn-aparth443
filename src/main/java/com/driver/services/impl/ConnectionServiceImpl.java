@@ -30,7 +30,7 @@ public class ConnectionServiceImpl implements ConnectionService {
             return user;
         }else{
             List<ServiceProvider> serviceProviderList = user.getServiceProviderList();
-            if(serviceProviderList.isEmpty()){
+            if(user.getServiceProviderList() == null){
                 throw new Exception("Unable to connect");
             }
             boolean availability = false;
@@ -83,7 +83,7 @@ public class ConnectionServiceImpl implements ConnectionService {
     public User disconnect(int userId) throws Exception {
 
         User user = userRepository2.findById(userId).get();
-        if(user.getConnected() == false){
+        if(!user.getConnected()){
             throw new Exception("Already disconnected");
         }else{
             user.setConnected(false);
